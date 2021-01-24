@@ -13,9 +13,18 @@ mongoose.connect(mongoURI);
 
 const app = express();
 
+app.use(
+    cookieSession({
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+        keys: [keys.cookieKey],
+    })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
+
 require('./server/routes/authRoutes')(app);
 
 // Heroku sets the PORT environment variable if running in prod
 const PORT = process.env.PORT || 5000;
 app.listen(PORT);
-//in browser, go to localhost:5000 shows {"hi": "there"}
