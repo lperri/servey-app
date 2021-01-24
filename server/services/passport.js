@@ -32,6 +32,7 @@ passport.use(
             clientID: keys.googleClientID,
             clientSecret: keys.googleClientSecret,
             callbackURL: '/auth/google/callback',
+            proxy: true,
         },
         (accessToken, refreshToken, profile, done) => {
             // query the mongo DB to see if this user exists already
