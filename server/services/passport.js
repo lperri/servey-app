@@ -34,23 +34,16 @@ passport.use(
             callbackURL: '/auth/google/callback',
             proxy: true,
         },
-        (accessToken, refreshToken, profile, done) => {
+        async (accessToken, refreshToken, profile, done) => {
             // query the mongo DB to see if this user exists already
-            User.findOne({ googleID: profile.id }).then((existingUser) => {
-                if (existingUser) {
-                    // we already have a record with the given profile ID
-                    done(null, existingUser);
-                } else {
-                    // we don't have a user record with this ID, make a new record
-                    new User({ googleID: profile.id })
-                        .save()
-                        // we don't want to call done here until we know for a fact user
-                        // has been successfully saved to DB
-                        .then((user) => done(null, user));
-                    // the user model instance inside the promise callback is the one we want
-                    // to use because it is the freshest record, we just received back from mongo DB
-                }
-            });
+            const existingUser = await User.findOne({ googleID: profile.id });
+            if (existingUser) {
+                // we already have a record with the given profile ID
+                return done(null, existingUser);
+            }
+            // we don't have a user record with this ID, make a new record
+            const user = await new User({ googleID: profile.id }).save();
+            done(null, user);
         }
     )
 );
